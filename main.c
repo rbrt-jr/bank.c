@@ -105,19 +105,165 @@ void infoAccount(Account account){
            account.fullBalance);
 }
 void creatAccount(){
+    Client client;
 
+    //############### Date of registration ############
+    char day[3];
+    char month[3];
+    char year[5];
+    char dateRegistration[20];
+    time_t t = time(NULL);
+    struct tm tm = *localtime(&t);
+
+    //day
+    if(tm.tm_mday < 10){
+        sprintf(day, "0%d", tm.tm_mday);
+    } else {
+        sprintf(day, "%d", tm.tm_mday);
+    }
+    //month
+    if((tm.tm_mon + 1) < 10){
+        sprintf(month, "0%d", tm.tm_mon);
+    } else {
+        sprintf(month, "%d", tm.tm_mon);
+    }
+    //year
+    sprintf(year, "%d", tm.tm_year + 1900);
+
+    strcpy(dateRegistration, "");
+    strcat(dateRegistration, day);
+    strcat(dateRegistration, "/");
+    strcat(dateRegistration, month);
+    strcat(dateRegistration, "/");
+    strcat(dateRegistration, year);
+    strcat(dateRegistration, "\0");
+    strcpy(client.registrationDate, dateRegistration);
+
+    //############# Create client ###################
+    printf("\t\tEnter costumer data\n");
+    client.code = counter_clients + 1;
+
+    printf("Customer name: ");
+    fgets(client.name, 50, stdin);
+
+    printf("Customer email: ");
+    fgets(client.email, 50, stdin);
+
+    printf("Consumer financial number: ");
+    fgets(client.financialNumber, 20, stdin);
+
+    printf("Date of birth: ");
+    fgets(client.dob, 20, stdin);
+
+    counter_clients++;
+
+    // ############ Create account ####################
+    accounts[counter_accounts].number = counter_accounts  + 1;
+    accounts[counter_accounts].client = client;
+    accounts[counter_accounts].balance = 0.0;
+    accounts[counter_accounts].limit = 0.0;
+    accounts[counter_accounts].fullBalance = updateFullBalance(accounts[counter_accounts]);
+    printf("Account was created successfully\n\n");
+
+    printf("\tData of created account\n");
+    infoAccount(accounts[counter_accounts]);
+    counter_accounts++;
+    Sleep(5);
+    menu();
 }
 void makeWithdraw(){
+    if(counter_accounts > 0){
+        int number;
+        printf("Enter number account: ");
+        scanf("%d", &number);
 
+        Account account = searchAccountByNumber(number);
+
+        if(account.number == number){
+            float value;
+            printf("Enter the value: $ ");
+            scanf("%f", &value);
+            withdraw(account, value);
+        } else {
+            printf("The account %d was not found\n", number);
+        }
+
+    } else {
+        printf("There is not the account for withdrawing\n");
+    }
+
+    Sleep(3);
+    menu();
 }
 void makeDeposit(){
+    if(counter_accounts > 0){
+        int number;
+        printf("Enter number account: ");
+        scanf("%d", &number);
 
+        Account account = searchAccountByNumber(number);
+
+        if(account.number == number){
+            float value;
+            printf("Enter the value: $ ");
+            scanf("%f", &value);
+            deposit(account, value);
+        } else {
+            printf("The account %d was not found\n", number);
+        }
+
+    } else {
+        printf("There is not the account for depositing\n");
+    }
+
+    Sleep(3);
+    menu();
 }
 void makeTransfer(){
+    if(counter_accounts > 0){
+        int originNumber, destineNumber;
+        printf("Enter your number account: ");
+        scanf("%d", &originNumber);
+        Account originAcc = searchAccountByNumber(originNumber);
 
+        if(originNumber == originAcc.number){
+            printf("Enter destine account number: ");
+            scanf("%d", &destineNumber);
+
+            Account destineAcc = searchAccountByNumber(destineNumber);
+            float value;
+            if(destineNumber == destineAcc.number){
+                printf("Enter the value for transfer: $ ");
+                scanf("%f", &value);
+                transfer(originAcc, destineAcc, value);
+            } else {
+                printf ("The destine account %d was not found\n", destineNumber);
+            }
+
+        } else {
+            printf("The origin account %d was not found\n", originNumber);
+        }
+
+    } else {
+        printf("There are no accounts for transfers\n");
+    }
+
+    Sleep(3);
+    menu();
 }
 void listAccounts(){
+    if(counter_accounts > 0){
+        for(int i = 0; i < counter_accounts; i++){
+            infoAccount(accounts[i]);
+            printf("\n");
+            Sleep(2);
+        }
+    } else {
+        printf("There are not registered accounts\n");
+    }
 
+    Sleep(3);
+    menu();
 }
 
 float updateFullBalance(Account account){
